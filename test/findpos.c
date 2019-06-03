@@ -1,6 +1,6 @@
 /**
- *  @file arraylist.c
- *  @author championsurfer3044
+ *  @file findpos.c
+ *  @author sam
  *  @date 03 Jun 2019 
  *  @brief 
  *
@@ -29,6 +29,9 @@
  *  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
  *  OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ *  This is an attempted implementation for problem at
+ *  https://www.hackerrank.com/challenges/java-arraylist/problem
  */
 
 
@@ -37,11 +40,12 @@
 *   Include Files
 *----------------------------------------------------------------------
 */
-#include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
-#include <malloc.h>
-#include <string.h>
+#include <stdlib.h>
+#include <time.h>
 #include "arraylist.h"
+
 
 /*
 *----------------------------------------------------------------------
@@ -97,89 +101,12 @@
 *   Externs
 *----------------------------------------------------------------------
 */
-
+extern void print_list(array_list_t *obj);
 /*
 *----------------------------------------------------------------------
 *   Private Functions Definitions
 *----------------------------------------------------------------------
 */
-static void add_elem(struct array_list_t *self, int item) {
-    if (!self) return;
-
-    if (self->count == self->size) { // time to grow arraylist
-        self->size *= 2;
-        self->array = (int *)realloc(self->array, self->size * sizeof(int));
-        assert(self->array);
-    }
-    self->array[self->count++] = item;
-}
-
-static void add_elem_at(struct array_list_t *self, int index, int item) {
-    if (!self) return;
-
-    if (self->count == self->size) { // time to grow arraylist
-        self->size *= 2;
-        self->array = (int *)realloc(self->array, self->size * sizeof(int));
-        assert(self->array);
-    }
-    // special case: index == count
-    if (index == self->count) {
-        // set last item
-        self->array[self->count++] = item;
-    }
-    else {
-        // wave out
-        for (int i = index; i < self->count; i++) {
-            int temp = self->array[i];
-            self->array[i] = item;
-            item = temp;
-        }
-        self->array[self->count++] = item;
-    }
-}
-
-static bool contains(struct array_list_t *self, int elem) {
-    if (!self) return false;
-
-    for (int i = 0; i < self->count; i++) {
-        if (self->array[i] == elem)
-            return true;
-    }
-    return false;
-}
-
-static void clear(struct array_list_t *self) {
-    if (!self) return;
-    self->count = 0;
-}
-
-static int get(struct array_list_t *self, int index) {
-    if (!self || index >= self->count) return -1;
-
-    return self->array[index];
-}
-
-static void remove_elem_at(struct array_list_t *self, int index) {
-    if (!self || index >= self->count) return;
-
-    for (int i = index; i < self->count-1; i++) {
-        self->array[i] = self->array[i+1];
-    }
-    self->count--;
-}
-
-static void remove_elem(struct array_list_t *self, int elem) {
-    if (!self) return;
-    for (int i = 0; i < self->count; i++) {
-        if (self->array[i] == elem) {
-            for (int j = i; j < self->count-1; j++) {
-                self->array[j] = self->array[j+1];
-            }
-            self->count--;
-            return;
-        }
-    }
-}
 
 /*
 *----------------------------------------------------------------------
@@ -187,28 +114,75 @@ static void remove_elem(struct array_list_t *self, int elem) {
 *----------------------------------------------------------------------
 */
 
-array_list_t *new_arraylist(const int list_size) {
-    if (!list_size) return NULL;
 
-    array_list_t *obj = (array_list_t *)malloc (sizeof(array_list_t));
-    assert(obj);
-    obj->array = (int *)malloc(list_size * sizeof(int));
-    assert(obj->array);
+int main()
+{
+    int num_lines = 0;
+    while (scanf("%d\n", &num_lines) != EOF) {
+        array_list_t **obj = (array_list_t **)malloc(num_lines*sizeof(array_list_t *));
+        assert(obj);
+        for (int i=0;i < num_lines; i++) {
+            int d = 0;
+            scanf("%d ", &d);
+            if (d) {
+                obj[i] = new_arraylist(d);
+                assert(obj[i]);
+                int item = 0;
+                for (int num_items = 0; num_items < d - 1; num_items++) {
+                    scanf("%d ", &item);
+                    //printf("got %d, ", item);
+                    obj[i]->add(obj[i], item);
+                }
+                scanf("%d\n", &item);
+                //printf("got %d\n", item);
+                obj[i]->add(obj[i], item);
+            }
+            else {
+                obj[i] = NULL;
+            }
+            //print_list(obj[i]);
+        }
 
-    obj->size     = list_size;
-    obj->add      = add_elem;
-    obj->add_at   = add_elem_at;
-    obj->contains = contains;
-    obj->clear    = clear;
-    obj->get      = get;
-    obj->remove_at= remove_elem_at;
-    obj->remove   = remove_elem;
+        int num_queries = 0;
+        scanf("%d\n", &num_queries);
+        typedef struct query_t {
+            int x, y;
+        }query_t;
 
-    return obj;
-}
+        query_t *queries = malloc(num_queries*sizeof(query_t));
+        assert(queries);
+        for (int i=0;i < num_queries; i++) {
+            int x = 0, y = 0;
+            scanf("%d %d\n", &queries[i].x, &queries[i].y);
+            //printf("Q.%d {x: %d, y: %d}\n", i, queries[i].x, queries[i].y);
+            queries[i].x--; queries[i].y--;
+        }
 
-void destroy_arraylist(array_list_t *obj) {
-    if (!obj) return;
-    free(obj->array);
-    free(obj);
+        for (int i=0;i < num_queries; i++) {
+            if (queries[i].x >= 0 && queries[i].x < num_lines && queries[i].y >= 0) {
+                if (obj[queries[i].x]) {
+                    int result = obj[queries[i].x]->get(obj[queries[i].x], queries[i].y);
+                    if (result < 0) {
+                        printf("[Q.%d] ERROR!\n", i);
+                    }
+                    else
+                        printf("[Q.%d] %d\n", i, result);
+                }
+                else {
+                    printf("[Q.%d] ERROR!\n", i);
+                }
+            }
+            else {
+                printf("[Q.%d] ERROR!\n", i);
+            }
+        }
+        free(queries);
+
+        for (int i=0;i < num_lines; i++) {
+            destroy_arraylist(obj[i]);
+        }
+        free(obj);
+        fflush(stdin);
+    }
+    return 0;
 }

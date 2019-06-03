@@ -56,6 +56,7 @@ typedef struct array_list_t {
     int size;
     int count;
     void (*add)(struct array_list_t *self, int item);
+    void (*add_at)(struct array_list_t *self, int index, int item);
     bool (*contains)(struct array_list_t *self, int elem);
     void (*clear)(struct array_list_t *self);
     int (*get)(struct array_list_t *self, int index);

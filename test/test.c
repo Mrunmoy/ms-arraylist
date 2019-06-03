@@ -19,7 +19,7 @@ void print_list(array_list_t *obj) {
   printf("\n}\n\n");
 }
 
-int main()
+int mymain()
 {
   array_list_t *obj = new_arraylist(3);
   assert(obj);
@@ -29,7 +29,7 @@ int main()
   print_list(obj);
 
   for (int i = 0;i < 3; i++) {
-    obj->add(obj, rand() % 23);
+    obj->add_at(obj, i, rand() % 23);
   }
 
   print_list(obj);
