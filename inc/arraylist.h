@@ -1,5 +1,5 @@
-#ifndef MS_ARRAYLIST_ARRAYLIST_H
-#define MS_ARRAYLIST_ARRAYLIST_H
+#ifndef MS_ARRAYLIST_H
+#define MS_ARRAYLIST_H
 
 /**
  *  @file arraylist.h
@@ -43,12 +43,25 @@ extern "C" {
 *   Include Files
 *----------------------------------------------------------------------
 */
+#include <stdint.h>
+#include <stdbool.h>
 
 /*
 *----------------------------------------------------------------------
 *   Public Data Types
 *----------------------------------------------------------------------
 */
+typedef struct array_list_t {
+    int *array;
+    int size;
+    int count;
+    void (*add)(struct array_list_t *self, int item);
+    bool (*contains)(struct array_list_t *self, int elem);
+    void (*clear)(struct array_list_t *self);
+    int (*get)(struct array_list_t *self, int index);
+    void (*remove_at)(struct array_list_t *self, int index);
+    void (*remove)(struct array_list_t *self, int elem);
+}array_list_t;
 
 /*
 *----------------------------------------------------------------------
@@ -68,8 +81,13 @@ extern "C" {
 *   Externs
 *----------------------------------------------------------------------
 */
+
+array_list_t *new_arraylist(const int list_size);
+void destroy_arraylist(array_list_t *obj);
+
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif //MS_ARRAYLIST_ARRAYLIST_H
+#endif //MS_ARRAYLIST_H
